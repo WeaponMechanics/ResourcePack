@@ -7,13 +7,16 @@ on:
         description: 'SemVer (X.Y.Z)'
         required: true
 
+permissions:
+  contents: write
+
 jobs:
   release:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code (full history)
-        uses: actions/checkout@v4
+      - name: Checkout full history
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
@@ -21,35 +24,25 @@ jobs:
         id: changelog
         uses: TriPSs/conventional-changelog-action@v5
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          # don’t bump/tag/commit—just output the changelog
-          skip-commit: 'true'
-          skip-tag: 'true'
+          github-token:    ${{ secrets.GITHUB_TOKEN }}
+          skip-commit:     'true'
+          skip-tag:        'true'
           skip-version-file: 'true'
-          output-file: 'false'
-          # only diff since the latest tag
-          release-count: '1'
-          # if your tags are prefixed with “v”
-          tag-prefix: 'v'
+          output-file:     'false'
+          release-count:   '1'
+          tag-prefix:      'v'
 
-      - name: Package repo
+      - name: Zip up repo
         run: |
           zip -r WeaponMechanicsResourcePack-${{ github.event.inputs.version }}.zip . \
             -x ".git/*" ".github/*" ".*"
 
-      - name: Create GitHub Release
-        id: create_rel
-        uses: actions/create-release@v1
+      - name: Create GitHub Release & upload asset
+        uses: softprops/action-gh-release@v2
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token:    ${{ secrets.GITHUB_TOKEN }}
           tag_name: v${{ github.event.inputs.version }}
-          release_name: v${{ github.event.inputs.version }}
-          body: ${{ steps.changelog.outputs.clean_changelog }}
-
-      - name: Upload release asset
-        uses: actions/upload-release-asset@v1
-        with:
-          upload_url: ${{ steps.create_rel.outputs.upload_url }}
-          asset_path: WeaponMechanicsResourcePack-${{ github.event.inputs.version }}.zip
-          asset_name: WeaponMechanicsResourcePack-${{ github.event.inputs.version }}.zip
-          asset_content_type: application/zip
+          name:     v${{ github.event.inputs.version }}
+          body:     ${{ steps.changelog.outputs.clean_changelog }}
+          files: |
+            WeaponMechanicsResourcePack-${{ github.event.inputs.version }}.zip
