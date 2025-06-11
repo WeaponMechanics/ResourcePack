@@ -21,7 +21,7 @@ jobs:
         id: changelog
         uses: TriPSs/conventional-changelog-action@v5
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.JRELEASER_GITHUB_TOKEN }}
           # don’t bump/tag/commit—just output the changelog
           skip-commit: 'true'
           skip-tag: 'true'
