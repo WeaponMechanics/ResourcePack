@@ -41,7 +41,7 @@ jobs:
         id: create_rel
         uses: actions/create-release@v1
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
           tag_name: v${{ github.event.inputs.version }}
           release_name: v${{ github.event.inputs.version }}
           body: ${{ steps.changelog.outputs.clean_changelog }}
